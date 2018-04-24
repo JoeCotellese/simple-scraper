@@ -23,23 +23,46 @@ use GuzzleHttp\Exception\ClientException;
 
 class SimpleScraper {
 	
-	private $contentType;
-	private $data;
+	/**
+	 * @var string
+	 */
 	private $body;
-	private $httpCode;
-	private $url;
+
 	/**
 	 * @var \GuzzleHttp\Client
 	 */
 	private $client;
+
+	/**
+	 * @var string
+	 */
+	private $contentType;
+
+	/**
+	 * @var array
+	 */
+	private $data;
 	
-/*===========================================================================*/
-// CONSTRUCTOR
-/*===========================================================================*/
+	/**
+	 * @var int
+	 */
+	private $httpCode;
+	
+	/**
+	 * @var string
+	 */
+	private $title;
+
+	/**
+	 * @var string
+	 */
+	private $url;
+	
 	/**
 	 * 
-	 * @param string $url
-	 * @throws Exception
+	 * @param \GuzzleHttp\Client $client A Guzzle client that will do the fetching
+	 * @param string $url the URL we want to fetch
+	 * @throws \InvalidArgumentException
 	 */
 	public function __construct(Client $client, $url) {
 		$this->data = array(
@@ -57,15 +80,13 @@ class SimpleScraper {
 		$this->url = $url;
 		$this->load();
 	}	
-/*===========================================================================*/
-// PUBLIC METHODS
-/*===========================================================================*/
-	/**
-	 * 
-	 */
-	public function load()
+
+	private function load()
 	{
 		$response = $this->client->get ($this->url);
+		
+		$this->httpCode = $response->getStatusCode();
+
 		if ($response->getStatusCode()>400){
 			throw new ClientException();
 		}
@@ -74,6 +95,22 @@ class SimpleScraper {
 		libxml_use_internal_errors(true);
 		$dom = new DOMDocument(null, 'UTF-8');
 		$dom->loadHTML($this->body);
+
+		$this->parseTitleTag($dom);
+		$this->parseMetaTags($dom);
+
+	}
+
+	private function parseTitleTag(DOMDocument $dom)
+	{
+		$list = $dom->getElementsByTagName("title");
+		if ($list->length > 0) {
+			$this->title = $list->item(0)->textContent;
+		}
+	}
+
+	private function parseMetaTags(DOMDocument $dom)
+	{
 		$metaTags = $dom->getElementsByTagName('meta');
 
 		for ($i=0; $i<$metaTags->length; $i++) {
@@ -102,7 +139,7 @@ class SimpleScraper {
 
 	/**
 	 *
-	 * @return array
+	 * @return array 
 	 */
 	public function getAllData() {
 		return $this->data;
@@ -155,7 +192,22 @@ class SimpleScraper {
 	public function getTwitter() {
 		return $this->data['twitter'];
 	}
-	
+
+	/**
+	 * @return string
+	 */
+	public function getTitle()
+	{
+		return $this->title;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getDescription()
+	{
+		return $this->data['meta']['description'];
+	}
 /*===========================================================================*/
 // PRIVATE METHODS
 /*===========================================================================*/

@@ -20,12 +20,13 @@ $ composer require ramonztro/simple-scraper
 
 ```php
 <?php
-
+use GuzzleHttp\Client;
 use Ramonztro\SimpleScraper\SimpleScraper;
 
 try {
+	$client = new Client();
 	//Creates a scraper
-	$scraper = new SimpleScraper('http://localhost/~ramonztro/simple-scraper/doscrape.php?url=https://techcrunch.com/2016/06/16/neural-networks-artificial-intelligence-and-our-future/');
+	$scraper = new SimpleScraper($client, 'http://localhost/~ramonztro/simple-scraper/doscrape.php?url=https://techcrunch.com/2016/06/16/neural-networks-artificial-intelligence-and-our-future/');
 	
 	//Returns an array containing OGP meta values. The array is indexed by the property attribute of the meta tag. In this case:
 	/* 

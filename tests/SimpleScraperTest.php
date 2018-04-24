@@ -79,4 +79,20 @@ final class SimpleScraperTest extends TestCase
         $this->assertSame($data['image'], 'example_image.png');
         $this->assertSame($data['creator'], '@TwitterCreator');
     }
+
+    public function testGetTitle()
+    {
+        $obj = new SimpleScraper ($this->client, 'https://www.example.com/foo');
+        $title = $obj->getTitle();
+        $this->assertSame($title, 'This is a test title');
+
+    }
+    
+    public function testGetDescription()
+    {
+        $obj = new SimpleScraper ($this->client, 'https://www.example.com/foo');
+        $desc = $obj->getDescription();
+        $this->assertSame($desc, 'This is a test description');
+
+    }
 }

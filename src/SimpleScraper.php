@@ -84,7 +84,6 @@ class SimpleScraper {
 	private function load()
 	{
 		$response = $this->client->get ($this->url);
-		
 		$this->httpCode = $response->getStatusCode();
 
 		if ($response->getStatusCode()>400){
@@ -95,7 +94,6 @@ class SimpleScraper {
 		libxml_use_internal_errors(true);
 		$dom = new DOMDocument(null, 'UTF-8');
 		$dom->loadHTML($this->body);
-
 		$this->parseTitleTag($dom);
 		$this->parseMetaTags($dom);
 
@@ -120,11 +118,13 @@ class SimpleScraper {
 			
 			if (
 				array_key_exists('property', $attrArray) && 
+				array_key_exists('content', $attrArray) &&
 				preg_match('~og:([a-zA-Z:_]+)~', $attrArray['property'], $matches)
 			) {
 				$this->data['ogp'][$matches[1]] = $attrArray['content'];
 			} else if (
 				array_key_exists('name', $attrArray) &&
+				array_key_exists('content', $attrArray) &&
 				preg_match('~twitter:([a-zA-Z:_]+)~', $attrArray['name'], $matches)
 			) {
 				$this->data['twitter'][$matches[1]] = $attrArray['content'];
@@ -207,31 +207,5 @@ class SimpleScraper {
 	public function getDescription()
 	{
 		return $this->data['meta']['description'];
-	}
-/*===========================================================================*/
-// PRIVATE METHODS
-/*===========================================================================*/
-	private function fetchResource() {
-		$response = $this->client->request('GET', $this->url);
-		if ($response->getStatusCode()>400){
-			throw new Exception('STATUS CODE: '. $this->getStatusCode());
-		}
-		// $ch = curl_init();
-		// curl_setopt($ch, CURLOPT_USERAGENT,'Mozilla/5.0 (compatible; SimpleScraper)');
-		// curl_setopt($ch, CURLOPT_URL, $this->url);
-		// curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-		// curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-		// curl_setopt($ch, CURLOPT_MAXREDIRS, 10);
-		// curl_setopt($ch, CURLOPT_TIMEOUT, 30);
-		// $this->content = curl_exec($ch);
-		// $info = curl_getinfo($ch);
-		// curl_close($ch);
-		
-		// $this->httpCode = $info['http_code'];
-		// $this->contentType = $info['content_type'];
-		
-		// if (((int) $this->httpCode) >= 400) {
-		// 	throw new Exception('STATUS CODE: ' . $this->httpCode);
-		// }
 	}
 }

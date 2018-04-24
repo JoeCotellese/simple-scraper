@@ -95,4 +95,25 @@ final class SimpleScraperTest extends TestCase
         $this->assertSame($desc, 'This is a test description');
 
     }
+
+    public function testMissingContent()
+    {
+        $mock = new MockHandler ([
+            new Response (200, ['Content-Type'=> 'text/html; charset=UTF-8'], ExampleBodies::$missingContentExample)
+        ]);
+        $handler = HandlerStack::create($mock);
+        $client = new Client(['handler'=>$handler]);
+        $obj = new SimpleScraper($client, 'http://www.example.com/foo');
+        $og = $obj->getOgp();
+        $this->assertArrayNotHasKey('locale', $og);
+
+    }
+    
+    public function testRealSite()
+    {
+        $client = new Client();
+        $obj = new SimpleScraper ($client, 'https://blog.hubspot.com/marketing/free-stock-photo-websites');
+        $data = $obj->getTitle();
+        $this->assertSame('20 of the Best Free Stock Photo Sites to Use in 2018', $data);
+    }
 }

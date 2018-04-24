@@ -23,12 +23,11 @@ use GuzzleHttp\Exception\ClientException;
 
 class SimpleScraper {
 	
-	private
-		$contentType,
-		$data,
-		$content,
-		$httpCode,
-		$url;
+	private $contentType;
+	private $data;
+	private $body;
+	private $httpCode;
+	private $url;
 	/**
 	 * @var \GuzzleHttp\Client
 	 */
@@ -70,11 +69,11 @@ class SimpleScraper {
 		if ($response->getStatusCode()>400){
 			throw new ClientException();
 		}
-		$body = $response->getBody();
-
+		$this->body = $response->getBody();
+		$this->contentType = $response->getHeader('Content-Type');
 		libxml_use_internal_errors(true);
 		$dom = new DOMDocument(null, 'UTF-8');
-		$dom->loadHTML($body);
+		$dom->loadHTML($this->body);
 		$metaTags = $dom->getElementsByTagName('meta');
 
 		for ($i=0; $i<$metaTags->length; $i++) {
@@ -114,7 +113,7 @@ class SimpleScraper {
 	 * @return string
 	 */
 	public function getContent() {
-		return $this->content;
+		return $this->body;
 	}
 	
 	/**

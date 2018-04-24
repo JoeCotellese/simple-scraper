@@ -1,8 +1,9 @@
 <?php 
 namespace Ramonztro\SimpleScraper;
+
 class ExampleBodies
 {
-    public $example1 = <<<EOT
+    public static $completeExample = <<<EOT
         <!DOCTYPE html>
         <html lang="en-US" prefix="og: http://ogp.me/ns#">
         <head>
@@ -27,7 +28,7 @@ class ExampleBodies
         <meta name="twitter:description" content="Twitter card description" />
         <meta name="twitter:title" content="Twitter title" />
         <meta name="twitter:site" content="@TwitterSite" />
-        <meta name="twitter:image" content="https://i1.wp.com/www.getsharey.com/example_image.png" />
+        <meta name="twitter:image" content="example_image.png" />
         <meta name="twitter:creator" content="@TwitterCreator" />
         </head>
         <body>

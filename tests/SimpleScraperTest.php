@@ -16,9 +16,8 @@ final class SimpleScraperTest extends TestCase
 {
     public function setUp()
     {
-        $example = new ExampleBodies();
         $mock = new MockHandler ([
-            new Response (200, [], $example->example1)
+            new Response (200, ['Content-Type'=> 'text/html; charset=UTF-8'], ExampleBodies::$completeExample)
         ]);
         $handler = HandlerStack::create($mock);
         $this->client = new Client(['handler'=>$handler]);
@@ -61,12 +60,23 @@ final class SimpleScraperTest extends TestCase
         $obj = new SimpleScraper ($client, 'https://www.example.com/asdffdssdffjs');
     }
 
-    public function testGoodData()
+    public function testGetAddData()
     {
         $obj = new SimpleScraper ($this->client, 'https://www.example.com/asdffdssdffjs');
         $data = $obj->getAllData();
         $this->assertArrayHasKey('twitter', $data);
         $this->assertArrayHasKey('ogp', $data);
         $this->assertArrayHasKey('meta', $data);
+    }
+    public function testGetMeta()
+    {
+        $obj = new SimpleScraper ($this->client, 'https://www.example.com/foo');
+        $data = $obj->getTwitter();
+        $this->assertArrayHasKey('card', $data);
+        $this->assertSame($data['card'], 'summary_large_image');
+        $this->assertSame($data['title'], 'Twitter title');
+        $this->assertSame($data['site'], '@TwitterSite');
+        $this->assertSame($data['image'], 'example_image.png');
+        $this->assertSame($data['creator'], '@TwitterCreator');
     }
 }

@@ -16,12 +16,17 @@ final class SimpleScraperTest extends TestCase
 {
     public function setUp()
     {
-        $this->client =  new Client();
+        $example = new ExampleBodies();
+        $mock = new MockHandler ([
+            new Response (200, [], $example->example1)
+        ]);
+        $handler = HandlerStack::create($mock);
+        $this->client = new Client(['handler'=>$handler]);
     }
     
     public function testCanBeCreated()
     {
-        $obj = new SimpleScraper($this->client, 'https://www.google.com');
+        $obj = new SimpleScraper($this->client, 'https://www.example.com');
         $this->assertInstanceOf(SimpleScraper::class, $obj);
     }
     
@@ -53,19 +58,12 @@ final class SimpleScraperTest extends TestCase
         ]);
         $handler = HandlerStack::create($mock);
         $client = new Client(['handler'=>$handler]);
-        $obj = new SimpleScraper ($this->client, 'https://www.google.com/asdffdssdffjs');
+        $obj = new SimpleScraper ($client, 'https://www.example.com/asdffdssdffjs');
     }
 
     public function testGoodData()
     {
-        $example = new ExampleBodies();
-        $mock = new MockHandler ([
-            new Response (200, [], $example->example1)
-        ]);
-        $handler = HandlerStack::create($mock);
-        $client = new Client(['handler'=>$handler]);
-
-        $obj = new SimpleScraper ($client, 'https://www.google.com/asdffdssdffjs');
+        $obj = new SimpleScraper ($this->client, 'https://www.example.com/asdffdssdffjs');
         $data = $obj->getAllData();
         $this->assertArrayHasKey('twitter', $data);
         $this->assertArrayHasKey('ogp', $data);

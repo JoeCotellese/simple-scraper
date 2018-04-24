@@ -17,6 +17,7 @@ namespace Ramonztro\SimpleScraper;
 use \DOMDocument;
 use \Exception;
 use \InvalidArgumentException;
+use GuzzleHttp\Client;
 
 class SimpleScraper {
 	
@@ -26,6 +27,10 @@ class SimpleScraper {
 		$content,
 		$httpCode,
 		$url;
+	/**
+	 * @var \GuzzleHttp\Client
+	 */
+	private $client;
 	
 /*===========================================================================*/
 // CONSTRUCTOR
@@ -35,12 +40,13 @@ class SimpleScraper {
 	 * @param string $url
 	 * @throws Exception
 	 */
-	public function __construct($url) {
+	public function __construct(Client $client, $url) {
 		$this->data = array(
 			'ogp' => array(),
 			'twitter' => array(),
 			'meta' => array()
 		);
+		$this->client = $client;
 		
 		$urlPattern = '~^(?:(?:https?|ftp)://)(?:\S+(?::\S*)?@)?(?:(?!10(?:\.\d{1,3}){3})(?!127(?:\.\d{1,3}){3})(?!169\.254(?:\.\d{1,3}){2})(?!192\.168(?:\.\d{1,3}){2})(?!172\.(?:1[6-9]|2\d|3[0-1])(?:\.\d{1,3}){2})(?:[1-9]\d?|1\d\d|2[01]\d|22[0-3])(?:\.(?:1?\d{1,2}|2[0-4]\d|25[0-5])){2}(?:\.(?:[1-9]\d?|1\d\d|2[0-4]\d|25[0-4]))|(?:(?:[a-z\x{00a1}-\x{ffff}0-9]+-?)*[a-z\x{00a1}-\x{ffff}0-9]+)(?:\.(?:[a-z\x{00a1}-\x{ffff}0-9]+-?)*[a-z\x{00a1}-\x{ffff}0-9]+)*(?:\.(?:[a-z\x{00a1}-\x{ffff}]{2,})))(?::\d{2,5})?(?:/[^\s]*)?$~iu';
 		if (!is_string($url))
@@ -48,7 +54,15 @@ class SimpleScraper {
 		if (!(preg_match($urlPattern, $url)))
 			throw new InvalidArgumentException("Argument 'url' is invalid.");
 		$this->url = $url;
-		
+	}	
+/*===========================================================================*/
+// PUBLIC METHODS
+/*===========================================================================*/
+	/**
+	 * 
+	 */
+	public function load()
+	{
 		$this->fetchResource();
 		libxml_use_internal_errors(true);
 		$dom = new DOMDocument(null, 'UTF-8');
@@ -78,10 +92,7 @@ class SimpleScraper {
 			}
 		}
 	}
-	
-/*===========================================================================*/
-// PUBLIC METHODS
-/*===========================================================================*/
+
 	/**
 	 *
 	 * @return array
@@ -142,22 +153,26 @@ class SimpleScraper {
 // PRIVATE METHODS
 /*===========================================================================*/
 	private function fetchResource() {
-		$ch = curl_init();
-		curl_setopt($ch, CURLOPT_USERAGENT,'Mozilla/5.0 (compatible; SimpleScraper)');
-		curl_setopt($ch, CURLOPT_URL, $this->url);
-		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-		curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-		curl_setopt($ch, CURLOPT_MAXREDIRS, 10);
-		curl_setopt($ch, CURLOPT_TIMEOUT, 30);
-		$this->content = curl_exec($ch);
-		$info = curl_getinfo($ch);
-		curl_close($ch);
-		
-		$this->httpCode = $info['http_code'];
-		$this->contentType = $info['content_type'];
-		
-		if (((int) $this->httpCode) >= 400) {
-			throw new Exception('STATUS CODE: ' . $this->httpCode);
+		$response = $this->client->request('GET', $this->url);
+		if ($response->getStatusCode()>400){
+			throw new Exception('STATUS CODE: '. $this->getStatusCode());
 		}
+		// $ch = curl_init();
+		// curl_setopt($ch, CURLOPT_USERAGENT,'Mozilla/5.0 (compatible; SimpleScraper)');
+		// curl_setopt($ch, CURLOPT_URL, $this->url);
+		// curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+		// curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+		// curl_setopt($ch, CURLOPT_MAXREDIRS, 10);
+		// curl_setopt($ch, CURLOPT_TIMEOUT, 30);
+		// $this->content = curl_exec($ch);
+		// $info = curl_getinfo($ch);
+		// curl_close($ch);
+		
+		// $this->httpCode = $info['http_code'];
+		// $this->contentType = $info['content_type'];
+		
+		// if (((int) $this->httpCode) >= 400) {
+		// 	throw new Exception('STATUS CODE: ' . $this->httpCode);
+		// }
 	}
 }

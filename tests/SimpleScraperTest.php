@@ -31,9 +31,17 @@ final class SimpleScraperTest extends TestCase
     /**
      * @expectedException InvalidArgumentException
      */
-    public function testBadUrl()
+    public function testInvalidUrl()
     {
         $obj = new SimpleScraper($this->client, 'foobar');
 
+    }
+
+    /**
+     * @expectedException GuzzleHttp\Exception\ClientException
+     */
+    public function test400Exception()
+    {
+        $obj = new SimpleScraper ($this->client, 'https://www.google.com/asdffdssdffjs');
     }
 }

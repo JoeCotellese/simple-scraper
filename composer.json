@@ -9,6 +9,11 @@
             "name": "Ramon Kayo",
             "email": "contato@ramonkayo.com",
             "homepage": "http://ramonkayo.com"
+        },
+        {
+            "name": "Joe Cotellese",
+            "email": "joe+git@cotellese.net",
+            "homepage": "https://www.joecotellese.com"
         }
     ],
     "autoload": {
